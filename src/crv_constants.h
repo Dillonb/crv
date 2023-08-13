@@ -166,9 +166,11 @@
 
 #define _CRV_RV_REG_TO_INT(reg) CRV_RV_REG_##reg
 
-#define CRV_RV_OPCODE_IMM 0x13
+#define CRV_RV_OPCODE_IMM    0x13
+#define CRV_RV_OPCODE_BRANCH 0x63
 
 #define CRV_RV_FUNCT3_ADDI  0x0
+#define CRV_RV_FUNCT3_BEQ   0x0
 #define CRV_RV_FUNCT3_SLLI  0x1
 #define CRV_RV_FUNCT3_SLTI  0x2
 #define CRV_RV_FUNCT3_SLTIU 0x3

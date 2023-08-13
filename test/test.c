@@ -9,15 +9,26 @@
 
 void run_test() {
     CRV_CTX* ctx = CRV_Init();
+    CRV_LABEL* l = CRV_InitLabel(ctx);
+    CRV_LABEL* l_forward = CRV_InitLabel(ctx);
+
     CRV_EmitAddi(ctx, t0, t1, -1);
+    CRV_EmitBeq(ctx, t0, t1, l_forward);
     CRV_EmitSlti(ctx, t0, t1, 1);
+    CRV_BindLabel(ctx, l_forward);
     CRV_EmitSltiu(ctx, t0, t1, 5);
     CRV_EmitAndi(ctx, t0, t1, 1);
     CRV_EmitOri(ctx, t0, t1, 1);
+    CRV_BindLabel(ctx, l);
     CRV_EmitXori(ctx, t0, t1, 1);
-    size_t buf_size = CRV_BufSize(ctx);
+    CRV_EmitBeq(ctx, t0, t1, -1234);
+    CRV_EmitBeq(ctx, t0, t1, l);
+    size_t buf_size = CRV_CodeSize(ctx);
     uint8_t* buf = malloc(buf_size);
     CRV_Encode(ctx, buf);
+
+    CRV_FreeLabel(l);
+    CRV_FreeLabel(l_forward);
     CRV_Free(ctx);
 
     printf("Raw code:\n");

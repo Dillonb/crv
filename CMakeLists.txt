@@ -2,8 +2,12 @@ cmake_minimum_required (VERSION 3.10)
 project (CRV)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake/modules")
 
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED TRUE)
 
-add_library(crv src/crv.c src/crv.h src/crv_util.h)
+add_compile_options(-Werror=switch)
+
+add_library(crv src/crv.c src/crv.h src/crv_constants.h)
 
 add_executable(test_headeronly test/test_headeronly.c test/test.c)
 target_include_directories(test_headeronly PUBLIC src)
