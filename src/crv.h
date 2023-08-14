@@ -28,6 +28,7 @@
 #define CRV_RV_EMITTER_CRV_H
 
 #include <stdint.h>
+#include <stddef.h>
 #include "crv_constants.h"
 
 typedef struct CRV_CTX CRV_CTX;
