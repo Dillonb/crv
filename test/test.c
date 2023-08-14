@@ -58,4 +58,5 @@ void run_test() {
     }
     printf("\n");
 #endif
+    free(buf);
 }
