@@ -59,6 +59,26 @@ void _CRV_Emit_BType_Incomplete(CRV_CTX* ctx, CRV_LABEL* offset, uint8_t rs2, ui
     CRV_LABEL*: _CRV_Emit_BType_Incomplete, \
     default: _CRV_Emit_BType \
     )(ctx, offset, _CRV_RV_REG_TO_INT(rs2), _CRV_RV_REG_TO_INT(rs1), CRV_RV_FUNCT3_BEQ, CRV_RV_OPCODE_BRANCH)
+#define CRV_EmitBne(ctx, rs1, rs2, offset) _Generic((offset), \
+    CRV_LABEL*: _CRV_Emit_BType_Incomplete, \
+    default: _CRV_Emit_BType \
+    )(ctx, offset, _CRV_RV_REG_TO_INT(rs2), _CRV_RV_REG_TO_INT(rs1), CRV_RV_FUNCT3_BNE, CRV_RV_OPCODE_BRANCH)
+#define CRV_EmitBlt(ctx, rs1, rs2, offset) _Generic((offset), \
+    CRV_LABEL*: _CRV_Emit_BType_Incomplete, \
+    default: _CRV_Emit_BType \
+    )(ctx, offset, _CRV_RV_REG_TO_INT(rs2), _CRV_RV_REG_TO_INT(rs1), CRV_RV_FUNCT3_BLT, CRV_RV_OPCODE_BRANCH)
+#define CRV_EmitBge(ctx, rs1, rs2, offset) _Generic((offset), \
+    CRV_LABEL*: _CRV_Emit_BType_Incomplete, \
+    default: _CRV_Emit_BType \
+    )(ctx, offset, _CRV_RV_REG_TO_INT(rs2), _CRV_RV_REG_TO_INT(rs1), CRV_RV_FUNCT3_BGE, CRV_RV_OPCODE_BRANCH)
+#define CRV_EmitBltu(ctx, rs1, rs2, offset) _Generic((offset), \
+    CRV_LABEL*: _CRV_Emit_BType_Incomplete, \
+    default: _CRV_Emit_BType \
+    )(ctx, offset, _CRV_RV_REG_TO_INT(rs2), _CRV_RV_REG_TO_INT(rs1), CRV_RV_FUNCT3_BLTU, CRV_RV_OPCODE_BRANCH)
+#define CRV_EmitBgeu(ctx, rs1, rs2, offset) _Generic((offset), \
+    CRV_LABEL*: _CRV_Emit_BType_Incomplete, \
+    default: _CRV_Emit_BType \
+    )(ctx, offset, _CRV_RV_REG_TO_INT(rs2), _CRV_RV_REG_TO_INT(rs1), CRV_RV_FUNCT3_BGEU, CRV_RV_OPCODE_BRANCH)
 
 // TODO write a script to combine all headers and source files to make a true header only library
 #ifdef CRV_IMPLEMENTATION

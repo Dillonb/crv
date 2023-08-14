@@ -14,6 +14,11 @@ void run_test() {
 
     CRV_EmitAddi(ctx, t0, t1, -1);
     CRV_EmitBeq(ctx, t0, t1, l_forward);
+    CRV_EmitBne(ctx, t0, t1, l_forward);
+    CRV_EmitBlt(ctx, t0, t1, l_forward);
+    CRV_EmitBge(ctx, t0, t1, l_forward);
+    CRV_EmitBltu(ctx, t0, r(0), l_forward);
+    CRV_EmitBgeu(ctx, t0, t1, l_forward);
     CRV_EmitSlti(ctx, t0, t1, 1);
     CRV_BindLabel(ctx, l_forward);
     CRV_EmitSltiu(ctx, t0, t1, 5);
@@ -31,11 +36,6 @@ void run_test() {
     CRV_FreeLabel(l_forward);
     CRV_Free(ctx);
 
-    printf("Raw code:\n");
-    for (size_t i = 0; i < buf_size; i++) {
-        printf("%02X", buf[i]);
-    }
-    printf("\n");
 #ifdef HAVE_CAPSTONE
     printf("Disassembling with Capstone\n");
     csh cs_handle;
@@ -51,5 +51,11 @@ void run_test() {
         printf("%08" PRIX64 " %s %s\n", insn[i].address, insn[i].mnemonic, insn[i].op_str);
     }
     cs_free(insn, count);
+#else
+    printf("Raw code:\n");
+    for (size_t i = 0; i < buf_size; i++) {
+        printf("%02X", buf[i]);
+    }
+    printf("\n");
 #endif
 }
