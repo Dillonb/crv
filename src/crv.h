@@ -62,11 +62,7 @@ void _CRV_Emit_32b_Label_Ignore(CRV_CTX* ctx, uint32_t instruction, int label, _
     | (((uint32_t)_CRV_LabelToZero(bimm12)  & 0x7E0)  << 20) /* imm[10:5] */ \
     | (((uint32_t)_CRV_LabelToZero(bimm12)  & 0x1E)   << 7)  /* imm[4:1]  */ \
     | (((uint32_t)_CRV_LabelToZero(bimm12)  & 0x800)  >> 4)  /* imm[11]   */))
-
-// beq     bimm12hi rs1 rs2 bimm12lo 14..12=0 6..2=0x18 1..0=3
-#define CRV_AssembleBeq_(rs1, rs2, bimm12) ((0 << 12) | (24 << 2) | 3 | CRV_RV_ARG_rs1(rs1) | CRV_RV_ARG_rs2(rs2) | CRV_RV_ARG_bimm12(bimm12))
-#define CRV_EmitBeq_(ctx, rs1, rs2, bimm12) _Generic((bimm12), CRV_LABEL*: _CRV_Emit_32b_Label, default: _CRV_Emit_32b_Label_Ignore) \
-    (ctx, CRV_AssembleBeq_(rs1, rs2, bimm12), bimm12, _CRV_LABEL_FIELD_bimm12)
+#define CRV_RV_ARG_imm20(imm20) (((imm20) & 0xFFFFF) << 12)
 
 #include "crv_emitters.h"
 
