@@ -46,6 +46,10 @@ add_executable(test test/test.c)
 target_include_directories(test PUBLIC src)
 target_link_libraries(test crv)
 
+add_executable(test_functioncall test/test_functioncall.c)
+target_include_directories(test_functioncall PUBLIC src)
+target_link_libraries(test_functioncall crv)
+
 find_package(Capstone)
 if(Capstone_FOUND)
     target_link_libraries(test ${Capstone_LIBRARIES})
