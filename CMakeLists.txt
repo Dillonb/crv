@@ -40,16 +40,28 @@ add_custom_command(
     DEPENDS ${gen_emitters_script}
 )
 
-add_library(crv src/crv.c src/crv.h src/crv_constants.h ${generated_emitters_header})
+set(crv_sources src/crv.c)
+set(crv_headers src/crv.h src/crv_constants.h ${generated_emitters_header})
+
+add_library(crv_static STATIC ${crv_sources} ${crv_headers})
+target_include_directories(crv_static PUBLIC ${generated_emitters_header_dir})
+
+add_library(crv SHARED ${crv_sources} ${crv_headers})
 target_include_directories(crv PUBLIC ${generated_emitters_header_dir})
+
+install(TARGETS crv crv_static
+    DESTINATION lib)
+
+install(FILES ${crv_headers}
+    DESTINATION include)
 
 add_executable(test test/test.c)
 target_include_directories(test PUBLIC src)
-target_link_libraries(test crv)
+target_link_libraries(test crv_static)
 
 add_executable(test_functioncall test/test_functioncall.c)
 target_include_directories(test_functioncall PUBLIC src)
-target_link_libraries(test_functioncall crv)
+target_link_libraries(test_functioncall crv_static)
 
 find_package(Capstone)
 if(Capstone_FOUND)
