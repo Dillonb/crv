@@ -34,6 +34,7 @@ find_package(Python 3.6 REQUIRED)
 add_custom_command(
     OUTPUT ${generated_emitters_header}
     COMMAND ${Python_EXECUTABLE} ${gen_emitters_script} 
+            --license ${CMAKE_CURRENT_LIST_DIR}/LICENSE
             --output ${generated_emitters_header} 
             --opcodes ${riscv_opcodes}
     DEPENDS ${gen_emitters_script}

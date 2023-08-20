@@ -4,6 +4,7 @@ from argparse import ArgumentParser
 parser = ArgumentParser()
 parser.add_argument("--output", "-o", required=True, help="Output path of generated header")
 parser.add_argument("--opcodes", "-i", required=True, help="Input path: riscv-opcodes repository - https://github.com/riscv/riscv-opcodes")
+parser.add_argument("--license", "-l", required=False, help="Input path: LICENSE file")
 args = parser.parse_args()
 
 argument_aliases = {
@@ -101,6 +102,11 @@ files = [
 ]
 
 f = open(args.output, "w")
+if args.license:
+    f.write("/*\n")
+    f.write(open(args.license, "r").read())
+    f.write("\n*/")
+    f.write("\n")
 f.write(
 """/*
 !!! WARNING !!!
