@@ -52,6 +52,24 @@ int main(int argc, char** argv) {
     CRV_EmitEcall(ctx);
     CRV_EmitEbreak(ctx);
 
+    // From RV64
+    CRV_EmitLwu(ctx, t0, t1, -1);
+    CRV_EmitLd(ctx, t0, t1, -2);
+    CRV_EmitSd(ctx, t0, t1, -3);
+    CRV_EmitSlli(ctx, t0, t1, 4);
+    CRV_EmitSrli(ctx, t0, t1, 5);
+    CRV_EmitSrai(ctx, t0, t1, 6);
+    CRV_EmitAddiw(ctx, t0, t1, 7);
+    CRV_EmitSlliw(ctx, t0, t1, 8);
+    CRV_EmitSrliw(ctx, t0, t1, 9);
+    CRV_EmitSraiw(ctx, t0, t1, 10);
+
+    CRV_EmitAddw(ctx, t0, t1, t2);
+    CRV_EmitSubw(ctx, t0, t1, t2);
+    CRV_EmitSllw(ctx, t0, t1, t2);
+    CRV_EmitSrlw(ctx, t0, t1, t2);
+    CRV_EmitSraw(ctx, t0, t1, t2);
+
     size_t buf_size = CRV_CodeSize(ctx);
     uint8_t* buf = malloc(buf_size);
     CRV_Encode(ctx, buf);

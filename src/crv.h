@@ -70,6 +70,8 @@ void _CRV_Emit_32b_Label_Ignore(CRV_CTX* ctx, uint32_t instruction, int label, _
     (((uint32_t)_CRV_LabelToZero(jimm20) & 0x7FE)    << 20) | \
     (((uint32_t)_CRV_LabelToZero(jimm20) & 0x800)    << 9) | \
     (((uint32_t)_CRV_LabelToZero(jimm20) & 0xFF000)  << 0)))
+#define CRV_RV_ARG_shamtd(shamt)(((shamt) & 0x3F) << 20)
+#define CRV_RV_ARG_shamtw(shamt) (((shamt) & 0x1F) << 20)
 
 #include "crv_emitters.h"
 

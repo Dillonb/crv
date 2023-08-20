@@ -93,7 +93,11 @@ def process_file(file):
     return result
     
 
-result = "\n".join(process_file(f"{args.opcodes}/rv_i"))
+files = [
+    "rv_i",
+    "rv64_i",
+]
+
 f = open(args.output, "w")
 f.write(
 """/*
@@ -104,5 +108,8 @@ Do not edit it, your changes will be lost!
 
 
 """)
-f.write(result)
+
+for file in files:
+    result = "\n".join(process_file(f"{args.opcodes}/{file}"))
+    f.write(result)
 f.close()
