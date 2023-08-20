@@ -92,7 +92,15 @@ def process_file(file):
     
 
 result = "\n".join(process_file(f"{args.opcodes}/rv_i"))
-print(result)
 f = open(args.output, "w")
+f.write(
+"""/*
+!!! WARNING !!!
+This file was automatically generated!
+Do not edit it, your changes will be lost!
+*/
+
+
+""")
 f.write(result)
 f.close()
