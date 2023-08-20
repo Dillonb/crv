@@ -55,6 +55,9 @@ install(TARGETS crv crv_static
 install(FILES ${crv_headers}
     DESTINATION include)
 
+install(FILES ${crv_sources}
+    DESTINATION src)
+
 add_executable(test test/test.c)
 target_include_directories(test PUBLIC src)
 target_link_libraries(test crv_static)
