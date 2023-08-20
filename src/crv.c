@@ -171,7 +171,10 @@ void CRV_Encode(CRV_CTX* ctx, uint8_t* buf) {
                 switch (instr->_32b_incomplete_label.field) {
                     case _CRV_LABEL_FIELD_bimm12:
                         assembled |= CRV_RV_ARG_bimm12(offset);
-                    break;
+                        break;
+                    case _CRV_LABEL_FIELD_jimm20:
+                        assembled |= CRV_RV_ARG_jimm20(offset);
+                        break;
                 }
                 memcpy(instr_loc, &assembled, sizeof(uint32_t));
                 break;

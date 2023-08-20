@@ -9,9 +9,11 @@ args = parser.parse_args()
 argument_aliases = {
      "bimm12hi": "",
      "bimm12lo": "bimm12",
+     "imm12hi": "",
+     "imm12lo": "imm12_split",
 }
 
-label_arguments = ["bimm12"]
+label_arguments = ["bimm12", "jimm20"]
 
 def process_constant(constant):
     bits, value = constant.split("=")
@@ -75,7 +77,7 @@ def process_instruction(line):
         result.append(f"#define CRV_{emitter_name}({', '.join(['ctx'] + arguments)}) _CRV_Emit_32b(ctx, CRV_{assembler_name}({', '.join(arguments)}))")
     elif len(used_label_arguments) == 1:
         label_arg = used_label_arguments[0]
-        result.append(f"#define CRV_{emitter_name}(ctx, rs1, rs2, bimm12) _Generic((bimm12), CRV_LABEL*: _CRV_Emit_32b_Label, default: _CRV_Emit_32b_Label_Ignore) \\")
+        result.append(f"#define CRV_{emitter_name}({', '.join(['ctx'] + arguments)}) _Generic(({label_arg}), CRV_LABEL*: _CRV_Emit_32b_Label, default: _CRV_Emit_32b_Label_Ignore) \\")
         result.append(f"    (ctx, CRV_{assembler_name}({', '.join(arguments)}), {label_arg}, _CRV_LABEL_FIELD_{label_arg})")
 
         pass

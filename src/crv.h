@@ -35,7 +35,8 @@ typedef struct CRV_CTX CRV_CTX;
 typedef struct CRV_LABEL CRV_LABEL;
 
 typedef enum _crv_label_field {
-    _CRV_LABEL_FIELD_bimm12
+    _CRV_LABEL_FIELD_bimm12,
+    _CRV_LABEL_FIELD_jimm20
 } _crv_label_field_t;
 
 CRV_CTX* CRV_Init();
@@ -57,12 +58,18 @@ void _CRV_Emit_32b_Label_Ignore(CRV_CTX* ctx, uint32_t instruction, int label, _
 #define CRV_RV_ARG_rd(rd) (_CRV_RV_REG_TO_INT(rd) << 7)
 #define CRV_RV_ARG_imm12(imm12) (((imm12) & 0xFFF) << 20)
 #define _CRV_LabelToZero(x) _Generic((x), CRV_LABEL*: 0, default: (x))
-#define CRV_RV_ARG_bimm12(bimm12) _Generic((bimm12), CRV_LABEL*: 0, default: \
-     ((((uint32_t)_CRV_LabelToZero(bimm12)  & 0x1000) << 19) /* imm[12]   */ \
-    | (((uint32_t)_CRV_LabelToZero(bimm12)  & 0x7E0)  << 20) /* imm[10:5] */ \
-    | (((uint32_t)_CRV_LabelToZero(bimm12)  & 0x1E)   << 7)  /* imm[4:1]  */ \
-    | (((uint32_t)_CRV_LabelToZero(bimm12)  & 0x800)  >> 4)  /* imm[11]   */))
+#define CRV_RV_ARG_bimm12(bimm12) _Generic((bimm12), CRV_LABEL*: 0, default: ( \
+    (((uint32_t)_CRV_LabelToZero(bimm12)  & 0x1000) << 19) | \
+    (((uint32_t)_CRV_LabelToZero(bimm12)  & 0x7E0)  << 20) | \
+    (((uint32_t)_CRV_LabelToZero(bimm12)  & 0x1E)   << 7)  | \
+    (((uint32_t)_CRV_LabelToZero(bimm12)  & 0x800)  >> 4)))
 #define CRV_RV_ARG_imm20(imm20) (((imm20) & 0xFFFFF) << 12)
+#define CRV_RV_ARG_imm12_split(imm12) ((((imm12) & 0x1F) << 7) | (((imm12) & 0xFE0) << 20))
+#define CRV_RV_ARG_jimm20(jimm20) _Generic((jimm20), CRV_LABEL*: 0, default: ( \
+    (((uint32_t)_CRV_LabelToZero(jimm20) & 0x100000) << 11) | \
+    (((uint32_t)_CRV_LabelToZero(jimm20) & 0x7FE)    << 20) | \
+    (((uint32_t)_CRV_LabelToZero(jimm20) & 0x800)    << 9) | \
+    (((uint32_t)_CRV_LabelToZero(jimm20) & 0xFF000)  << 0)))
 
 #include "crv_emitters.h"
 
