@@ -34,6 +34,10 @@
 typedef struct CRV_CTX CRV_CTX;
 typedef struct CRV_LABEL CRV_LABEL;
 
+typedef enum _crv_label_field {
+    _CRV_LABEL_FIELD_bimm12
+} _crv_label_field_t;
+
 CRV_CTX* CRV_Init();
 void CRV_Free(CRV_CTX* ctx);
 size_t CRV_CodeSize(CRV_CTX* ctx);
@@ -43,47 +47,33 @@ CRV_LABEL* CRV_InitLabel(CRV_CTX* ctx);
 void CRV_BindLabel(CRV_CTX* ctx, CRV_LABEL* label);
 void CRV_FreeLabel(CRV_LABEL* label);
 
-void _CRV_Emit_IType(CRV_CTX* ctx, int16_t imm12, uint8_t rs1, uint8_t funct3, uint8_t rd, uint8_t opcode);
-void _CRV_Emit_BType(CRV_CTX* ctx, int16_t imm12, uint8_t rs2, uint8_t rs1, uint8_t funct3, uint8_t opcode);
-void _CRV_Emit_BType_Incomplete(CRV_CTX* ctx, CRV_LABEL* offset, uint8_t rs2, uint8_t rs1, uint8_t funct3, uint8_t opcode);
+void _CRV_Emit_32b(CRV_CTX* ctx, uint32_t instruction);
+void _CRV_Emit_32b_Label(CRV_CTX* ctx, uint32_t instruction, CRV_LABEL* label, _crv_label_field_t field);
+// Hack: work around all _Generic associations needing to be valid
+inline void _CRV_Emit_32b_Label_Ignore(CRV_CTX* ctx, uint32_t instruction, int label, _crv_label_field_t field) {
+    (void)label;
+    (void)field;
+    _CRV_Emit_32b(ctx, instruction);
+}
 
-// Integer Register-Immediate instructions
-#define CRV_EmitAddi(ctx, rd, rs1, imm12)  _CRV_Emit_IType(ctx, imm12, _CRV_RV_REG_TO_INT(rs1), CRV_RV_FUNCT3_ADDI,  _CRV_RV_REG_TO_INT(rd), CRV_RV_OPCODE_IMM)
-#define CRV_EmitSlti(ctx, rd, rs1, imm12)  _CRV_Emit_IType(ctx, imm12, _CRV_RV_REG_TO_INT(rs1), CRV_RV_FUNCT3_SLTI,  _CRV_RV_REG_TO_INT(rd), CRV_RV_OPCODE_IMM)
-#define CRV_EmitSltiu(ctx, rd, rs1, imm12) _CRV_Emit_IType(ctx, imm12, _CRV_RV_REG_TO_INT(rs1), CRV_RV_FUNCT3_SLTIU, _CRV_RV_REG_TO_INT(rd), CRV_RV_OPCODE_IMM)
-#define CRV_EmitAndi(ctx, rd, rs1, imm12)  _CRV_Emit_IType(ctx, imm12, _CRV_RV_REG_TO_INT(rs1), CRV_RV_FUNCT3_ANDI,  _CRV_RV_REG_TO_INT(rd), CRV_RV_OPCODE_IMM)
-#define CRV_EmitOri(ctx, rd, rs1, imm12)   _CRV_Emit_IType(ctx, imm12, _CRV_RV_REG_TO_INT(rs1), CRV_RV_FUNCT3_ORI,   _CRV_RV_REG_TO_INT(rd), CRV_RV_OPCODE_IMM)
-#define CRV_EmitXori(ctx, rd, rs1, imm12)  _CRV_Emit_IType(ctx, imm12, _CRV_RV_REG_TO_INT(rs1), CRV_RV_FUNCT3_XORI,  _CRV_RV_REG_TO_INT(rd), CRV_RV_OPCODE_IMM)
+#define _CRV_Emit_32b_Label_Ignore(ctx, instruction, label, field) _CRV_Emit_32b(ctx, instruction)
 
-// Conditional branches
-#define CRV_EmitBeq(ctx, rs1, rs2, offset) _Generic((offset), \
-    CRV_LABEL*: _CRV_Emit_BType_Incomplete, \
-    default: _CRV_Emit_BType \
-    )(ctx, offset, _CRV_RV_REG_TO_INT(rs2), _CRV_RV_REG_TO_INT(rs1), CRV_RV_FUNCT3_BEQ, CRV_RV_OPCODE_BRANCH)
-#define CRV_EmitBne(ctx, rs1, rs2, offset) _Generic((offset), \
-    CRV_LABEL*: _CRV_Emit_BType_Incomplete, \
-    default: _CRV_Emit_BType \
-    )(ctx, offset, _CRV_RV_REG_TO_INT(rs2), _CRV_RV_REG_TO_INT(rs1), CRV_RV_FUNCT3_BNE, CRV_RV_OPCODE_BRANCH)
-#define CRV_EmitBlt(ctx, rs1, rs2, offset) _Generic((offset), \
-    CRV_LABEL*: _CRV_Emit_BType_Incomplete, \
-    default: _CRV_Emit_BType \
-    )(ctx, offset, _CRV_RV_REG_TO_INT(rs2), _CRV_RV_REG_TO_INT(rs1), CRV_RV_FUNCT3_BLT, CRV_RV_OPCODE_BRANCH)
-#define CRV_EmitBge(ctx, rs1, rs2, offset) _Generic((offset), \
-    CRV_LABEL*: _CRV_Emit_BType_Incomplete, \
-    default: _CRV_Emit_BType \
-    )(ctx, offset, _CRV_RV_REG_TO_INT(rs2), _CRV_RV_REG_TO_INT(rs1), CRV_RV_FUNCT3_BGE, CRV_RV_OPCODE_BRANCH)
-#define CRV_EmitBltu(ctx, rs1, rs2, offset) _Generic((offset), \
-    CRV_LABEL*: _CRV_Emit_BType_Incomplete, \
-    default: _CRV_Emit_BType \
-    )(ctx, offset, _CRV_RV_REG_TO_INT(rs2), _CRV_RV_REG_TO_INT(rs1), CRV_RV_FUNCT3_BLTU, CRV_RV_OPCODE_BRANCH)
-#define CRV_EmitBgeu(ctx, rs1, rs2, offset) _Generic((offset), \
-    CRV_LABEL*: _CRV_Emit_BType_Incomplete, \
-    default: _CRV_Emit_BType \
-    )(ctx, offset, _CRV_RV_REG_TO_INT(rs2), _CRV_RV_REG_TO_INT(rs1), CRV_RV_FUNCT3_BGEU, CRV_RV_OPCODE_BRANCH)
+#define CRV_RV_ARG_rs1(rs1) (_CRV_RV_REG_TO_INT(rs1) << 15)
+#define CRV_RV_ARG_rs2(rs2) (_CRV_RV_REG_TO_INT(rs2) << 20)
+#define CRV_RV_ARG_rd(rd) (_CRV_RV_REG_TO_INT(rd) << 7)
+#define CRV_RV_ARG_imm12(imm12) (((imm12) & 0xFFF) << 20)
+#define _CRV_LabelToZero(x) _Generic((x), CRV_LABEL*: 0, default: (x))
+#define CRV_RV_ARG_bimm12(bimm12) _Generic((bimm12), CRV_LABEL*: 0, default: \
+     ((((uint32_t)_CRV_LabelToZero(bimm12)  & 0x1000) << 19) /* imm[12]   */ \
+    | (((uint32_t)_CRV_LabelToZero(bimm12)  & 0x7E0)  << 20) /* imm[10:5] */ \
+    | (((uint32_t)_CRV_LabelToZero(bimm12)  & 0x1E)   << 7)  /* imm[4:1]  */ \
+    | (((uint32_t)_CRV_LabelToZero(bimm12)  & 0x800)  >> 4)  /* imm[11]   */))
 
-// TODO write a script to combine all headers and source files to make a true header only library
-#ifdef CRV_IMPLEMENTATION
-#include "crv.c"
-#endif
+// beq     bimm12hi rs1 rs2 bimm12lo 14..12=0 6..2=0x18 1..0=3
+#define CRV_AssembleBeq_(rs1, rs2, bimm12) ((0 << 12) | (24 << 2) | 3 | CRV_RV_ARG_rs1(rs1) | CRV_RV_ARG_rs2(rs2) | CRV_RV_ARG_bimm12(bimm12))
+#define CRV_EmitBeq_(ctx, rs1, rs2, bimm12) _Generic((bimm12), CRV_LABEL*: _CRV_Emit_32b_Label, default: _CRV_Emit_32b_Label_Ignore) \
+    (ctx, CRV_AssembleBeq_(rs1, rs2, bimm12), bimm12, _CRV_LABEL_FIELD_bimm12)
+
+#include "crv_emitters.h"
 
 #endif // CRV_RV_EMITTER_CRV_H

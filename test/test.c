@@ -1,5 +1,3 @@
-#include "test.h"
-
 #include <crv.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -7,7 +5,7 @@
 #include <capstone/capstone.h>
 #endif
 
-void run_test() {
+int main(int argc, char** argv) {
     CRV_CTX* ctx = CRV_Init();
     CRV_LABEL* l = CRV_InitLabel(ctx);
     CRV_LABEL* l_forward = CRV_InitLabel(ctx);

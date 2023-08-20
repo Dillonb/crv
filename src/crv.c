@@ -38,24 +38,22 @@ typedef struct _CRV_INSTR {
     size_t code_offset;
     enum {
         _CRV_32B_COMPLETE_INSTR,
-        _CRV_32B_INCOMPLETE_BTYPE
+        _CRV_32B_INCOMPLETE_LABEL
     } type;
     union {
         uint32_t _32b_complete_instr;
         struct {
-          CRV_LABEL* offset;
-          uint8_t rs2;
-          uint8_t rs1;
-          uint8_t funct3;
-          uint8_t opcode;
-        } _32b_incomplete_btype;
+          uint32_t instruction;
+          CRV_LABEL* label;
+          _crv_label_field_t field;
+        } _32b_incomplete_label;
     };
 } _CRV_INSTR;
 
 size_t _CRV_InstrSize(_CRV_INSTR* instr) {
     switch (instr->type) {
         case _CRV_32B_COMPLETE_INSTR:
-        case _CRV_32B_INCOMPLETE_BTYPE:
+        case _CRV_32B_INCOMPLETE_LABEL:
             return sizeof(uint32_t);
     }
 }
@@ -134,47 +132,19 @@ void _CRV_AppendInstruction(CRV_CTX* ctx, _CRV_INSTR instr) {
     ctx->running_code_size += _CRV_InstrSize(&instr);
 }
 
-void _CRV_Emit_IType(CRV_CTX* ctx, int16_t imm12, uint8_t rs1, uint8_t funct3, uint8_t rd, uint8_t opcode) {
+void _CRV_Emit_32b(CRV_CTX* ctx, uint32_t instruction) {
     _CRV_INSTR instr = { 0 };
     instr.type = _CRV_32B_COMPLETE_INSTR;
-
-    instr._32b_complete_instr |= (imm12  & 0xFFF) << 20;
-    instr._32b_complete_instr |= (rs1    & 0x1F)  << 15;
-    instr._32b_complete_instr |= (funct3 & 0x7)   << 12;
-    instr._32b_complete_instr |= (rd     & 0x1F)  << 7;
-    instr._32b_complete_instr |= opcode  & 0x7F   << 0;
+    instr._32b_complete_instr = instruction;
     _CRV_AppendInstruction(ctx, instr);
 }
 
-uint32_t _CRV_Assemble_BType(int16_t imm12, uint8_t rs2, uint8_t rs1, uint8_t funct3, uint8_t opcode) {
-    uint32_t instr = 0;
-    instr |= (imm12  & 0x1000) << 19; // imm[12]
-    instr |= (imm12  & 0x7E0)  << 20; // imm[10:5]
-    instr |= (rs2    & 0x1F)   << 20;
-    instr |= (rs1    & 0x1F)   << 15;
-    instr |= (funct3 & 0x7)    << 12;
-    instr |= (imm12  & 0x1E)   << 7;  // imm[4:1]
-    instr |= (imm12  & 0x800)  >> 4;  // imm[11]
-    instr |= (opcode & 0x7F)   << 0;
-
-    return instr;
-}
-
-void _CRV_Emit_BType(CRV_CTX* ctx, int16_t imm12, uint8_t rs2, uint8_t rs1, uint8_t funct3, uint8_t opcode) {
+void _CRV_Emit_32b_Label(CRV_CTX* ctx, uint32_t instruction, CRV_LABEL* label, _crv_label_field_t field) {
     _CRV_INSTR instr = { 0 };
-    instr.type = _CRV_32B_COMPLETE_INSTR;
-    instr._32b_complete_instr = _CRV_Assemble_BType(imm12, rs2, rs1, funct3, opcode);
-    _CRV_AppendInstruction(ctx, instr);
-}
-
-void _CRV_Emit_BType_Incomplete(CRV_CTX* ctx, CRV_LABEL* offset, uint8_t rs2, uint8_t rs1, uint8_t funct3, uint8_t opcode) {
-    _CRV_INSTR instr = { 0 };
-    instr.type = _CRV_32B_INCOMPLETE_BTYPE;
-    instr._32b_incomplete_btype.offset = offset;
-    instr._32b_incomplete_btype.rs2 = rs2;
-    instr._32b_incomplete_btype.rs1 = rs1;
-    instr._32b_incomplete_btype.funct3 = funct3;
-    instr._32b_incomplete_btype.opcode = opcode;
+    instr.type = _CRV_32B_INCOMPLETE_LABEL;
+    instr._32b_incomplete_label.instruction = instruction;
+    instr._32b_incomplete_label.label = label;
+    instr._32b_incomplete_label.field = field;
     _CRV_AppendInstruction(ctx, instr);
 }
 
@@ -189,13 +159,14 @@ void CRV_Encode(CRV_CTX* ctx, uint8_t* buf) {
             case _CRV_32B_COMPLETE_INSTR:
                 memcpy(instr_loc, &instr->_32b_complete_instr, sizeof(uint32_t));
                 break;
-            case _CRV_32B_INCOMPLETE_BTYPE: {
-                uint32_t assembled = _CRV_Assemble_BType(
-                    _CRV_LabelToOffset(instr->_32b_incomplete_btype.offset, instr->code_offset),
-                    instr->_32b_incomplete_btype.rs2,
-                    instr->_32b_incomplete_btype.rs1,
-                    instr->_32b_incomplete_btype.funct3,
-                    instr->_32b_incomplete_btype.opcode);
+            case _CRV_32B_INCOMPLETE_LABEL: {
+                uint32_t assembled = instr->_32b_incomplete_label.instruction;
+                int16_t offset = _CRV_LabelToOffset(instr->_32b_incomplete_label.label, instr->code_offset);
+                switch (instr->_32b_incomplete_label.field) {
+                    case _CRV_LABEL_FIELD_bimm12:
+                        assembled |= CRV_RV_ARG_bimm12(offset);
+                    break;
+                }
                 memcpy(instr_loc, &assembled, sizeof(uint32_t));
                 break;
             }
