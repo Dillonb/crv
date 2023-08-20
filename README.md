@@ -15,7 +15,8 @@ CRV_EmitAddi(ctx, t0, t1, 1); // Adds 1 to t1 and stores the result in t0
 // Alternate mnemonics may be used
 CRV_EmitAddi(ctx, x5, x6, 1);
 
-// Registers can be assigned dynamically by wrapping them in r(), x(), R(), or X()
+// Registers can be assigned dynamically by wrapping them in r(), x(), R(), or X().
+// These are not global macros, and are only valid within instruction emitters.
 int destination_register = 5;
 int operand_register = 6;
 CRV_EmitAddi(ctx, r(destination_register), x(operand_register), 1);
@@ -47,4 +48,5 @@ CRV_Free(ctx);
 
 ## Notes
 - Labels cannot be bound twice.
-- If an instruction requires an even number (i.e. the LSB is not encoded into the instruction) it will be force-aligned. The same thing happens if a given immediate value is too large, it will be cut off.
+- If an instruction requires an even number (i.e. the LSB is not encoded into the instruction) it will be force-aligned. The same thing happens if a given immediate value is too large, it will be cut off. There is no error handling for this (yet.)
+- The emitters are automatically generated at build time from [this GitHub repository](https://github.com/riscv/riscv-opcodes).
