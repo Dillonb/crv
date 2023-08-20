@@ -70,6 +70,23 @@ int main(int argc, char** argv) {
     CRV_EmitSrlw(ctx, t0, t1, t2);
     CRV_EmitSraw(ctx, t0, t1, t2);
 
+    // Multiplies
+
+    CRV_EmitMul(ctx, t0, t1, t2);
+    CRV_EmitMulh(ctx, t0, t1, t2);
+    CRV_EmitMulhsu(ctx, t0, t1, t2);
+    CRV_EmitMulhu(ctx, t0, t1, t2);
+    CRV_EmitDiv(ctx, t0, t1, t2);
+    CRV_EmitDivu(ctx, t0, t1, t2);
+    CRV_EmitRem(ctx, t0, t1, t2);
+    CRV_EmitRemu(ctx, t0, t1, t2);
+    CRV_EmitMulw(ctx, t0, t1, t2);
+    CRV_EmitDivw(ctx, t0, t1, t2);
+    CRV_EmitDivuw(ctx, t0, t1, t2);
+    CRV_EmitRemw(ctx, t0, t1, t2);
+    CRV_EmitRemuw(ctx, t0, t1, t2);
+
+
     size_t buf_size = CRV_CodeSize(ctx);
     uint8_t* buf = malloc(buf_size);
     CRV_Encode(ctx, buf);

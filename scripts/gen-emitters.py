@@ -96,6 +96,8 @@ def process_file(file):
 files = [
     "rv_i",
     "rv64_i",
+    "rv_m",
+    "rv64_m",
 ]
 
 f = open(args.output, "w")
@@ -112,4 +114,5 @@ Do not edit it, your changes will be lost!
 for file in files:
     result = "\n".join(process_file(f"{args.opcodes}/{file}"))
     f.write(result)
+    f.write("\n")
 f.close()
