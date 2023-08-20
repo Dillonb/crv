@@ -50,13 +50,7 @@ void CRV_FreeLabel(CRV_LABEL* label);
 void _CRV_Emit_32b(CRV_CTX* ctx, uint32_t instruction);
 void _CRV_Emit_32b_Label(CRV_CTX* ctx, uint32_t instruction, CRV_LABEL* label, _crv_label_field_t field);
 // Hack: work around all _Generic associations needing to be valid
-inline void _CRV_Emit_32b_Label_Ignore(CRV_CTX* ctx, uint32_t instruction, int label, _crv_label_field_t field) {
-    (void)label;
-    (void)field;
-    _CRV_Emit_32b(ctx, instruction);
-}
-
-#define _CRV_Emit_32b_Label_Ignore(ctx, instruction, label, field) _CRV_Emit_32b(ctx, instruction)
+void _CRV_Emit_32b_Label_Ignore(CRV_CTX* ctx, uint32_t instruction, int label, _crv_label_field_t field);
 
 #define CRV_RV_ARG_rs1(rs1) (_CRV_RV_REG_TO_INT(rs1) << 15)
 #define CRV_RV_ARG_rs2(rs2) (_CRV_RV_REG_TO_INT(rs2) << 20)

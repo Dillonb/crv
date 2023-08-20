@@ -148,6 +148,12 @@ void _CRV_Emit_32b_Label(CRV_CTX* ctx, uint32_t instruction, CRV_LABEL* label, _
     _CRV_AppendInstruction(ctx, instr);
 }
 
+void _CRV_Emit_32b_Label_Ignore(CRV_CTX* ctx, uint32_t instruction, int label, _crv_label_field_t field) {
+    (void)label;
+    (void)field;
+    _CRV_Emit_32b(ctx, instruction);
+}
+
 void CRV_Encode(CRV_CTX* ctx, uint8_t* buf) {
     size_t buf_index = 0;
     for (size_t i = 0; i < ctx->instr_buf_used; i++) {
