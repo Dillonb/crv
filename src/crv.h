@@ -42,6 +42,7 @@ typedef enum _crv_label_field {
 CRV_CTX* CRV_Init();
 void CRV_Free(CRV_CTX* ctx);
 size_t CRV_CodeSize(CRV_CTX* ctx);
+#define CRV_CurrentOffset(ctx) CRV_CodeSize(ctx)
 void CRV_Encode(CRV_CTX* ctx, uint8_t* buf);
 
 CRV_LABEL* CRV_InitLabel(CRV_CTX* ctx);

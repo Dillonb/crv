@@ -7,6 +7,8 @@ CRV lets you assemble and emit RISC-V machine code at runtime. This is useful fo
 CRV is written in pure C, and makes heavy use of macros to create a clean API.
 
 ```c
+#include "crv.h"
+
 // To emit code, first create a CRV context.
 CRV_CTX* ctx = CRV_Init();
 
@@ -44,6 +46,28 @@ CRV_FreeLabel(label);
 CRV_Free(ctx);
 
 // Done!
+```
+
+## Assembling single instructions
+
+All CRV_Emit* macros have a corresponding CRV_Assemble* macro. This is useful for, for example, patching already generated code.
+
+```c
+#include "crv.h"
+CRV_CTX* ctx = CRV_Init();
+CRV_EmitAddi(ctx, t0, t1, 1);
+size_t patch_offset = CRV_CurrentOffset(ctx); // Gets the offset of the next instruction to be emitted
+CRV_EmitAddi(ctx, t0, t0, 1); // This will be patched later
+
+size_t code_size = CRV_CodeSize(ctx);
+uint8_t* code_buffer = AllocateExecutableMemory(code_size); // It is up to the user to implement this!
+CRV_Encode(ctx, code_buffer);
+CRV_Free(ctx);
+
+// Assemble a patched version of the second ADDI. Calls to the CRV_Assemble* macros do not need the ctx parameter.
+uint32_t patched_instruction = CRV_AssembleAddi(t0, t0, 2);
+// And copy it in
+memcpy(code_buffer + patch_offset, &patched_instruction, sizeof(uint32_t));
 ```
 
 ## Notes
